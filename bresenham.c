@@ -58,8 +58,19 @@ static void hline(int x1, int x2, int y)
 	"*****************************************"
 	"*****************************************"
 	"*****************************************"
+	"*****************************************"
+	"*****************************************"
+	"*****************************************"
 	"*****************************************";
-	printf("\033[%d;%dH%.*s", y, x1<<1, (x2 - x1 + 1)<<1, theLine);
+#define THE_LINE_LENGTH (sizeof theLine - 1)
+	int count = (x2 - x1 + 1) << 1;
+
+	printf("\033[%d;%dH", y, x1<<1);
+	while (count >= THE_LINE_LENGTH) {
+		fputs(theLine, stdout);
+		count -= THE_LINE_LENGTH;
+	} /* while */
+	printf("%.*s", count, theLine);
 } /* hline */
 
 /* draws a dot at coordinates (x, y) */
@@ -82,21 +93,23 @@ void bh(int r, int cx, int cy, int flags)
 				x, x2, dx2, y, y2, dy2, sum);
 		} else {
 			if (flags & FL_FILL) {
-				hline(cx - y, cx + y, cy + x);
-				hline(cx - y, cx + y, cy - x);
+					   hline(cx - y, cx + y, cy + x);
+				if (x) hline(cx - y, cx + y, cy - x);
 			} else {
-				dot(cx - y, cy + x); dot(cx + y, cy + x);
-				dot(cx - y, cy - x); dot(cx + y, cy - x);
-				dot(cx - x, cy - y); dot(cx + x, cy - y);
-				dot(cx - x, cy + y); dot(cx + x, cy + y);
+							 dot(cx - y, cy + x); if (y) dot(cx + y, cy + x);
+					if (x) { dot(cx - y, cy - x); if (y) dot(cx + y, cy - x); }
+				if (x != y) {
+							 dot(cx - x, cy - y); if (x) dot(cx + x, cy - y);
+					if (y) { dot(cx - x, cy + y); if (x) dot(cx + x, cy + y); }
+				}
 			} /* if */
 		} /* if */
 
 		sum -= dx2;
 		if (sum <= y2) {
-			if (!(flags & FL_TRACE) && (flags & FL_FILL)) {
-				hline(cx - x, cx + x, cy - y);
-				hline(cx - x, cx + x, cy + y);
+			if (!(flags & FL_TRACE) && (flags & FL_FILL) && (x != y)) {
+					   hline(cx - x, cx + x, cy - y);
+				if (y) hline(cx - x, cx + x, cy + y);
 			} /* if */
 			y--; y2 -= dy2; dy2 -= 2;
 		} /* if */
