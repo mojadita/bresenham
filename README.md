@@ -16,3 +16,4 @@ radii as command line parameters, as in
 	bresenham 10 20 30
 
 are examples of program execution.
+The program tries to {help with a question in StackOverflow}[http://stackoverflow.com/questions/41524497/c-sdl2-rendering-a-circle/41570334#41570334]
